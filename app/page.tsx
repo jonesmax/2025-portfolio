@@ -1,14 +1,21 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import styles from "./page.module.css";
 import dbdData from "./perks_killers_survivors.json";
 
+type Perk = { name: string; description?: string; image?: string };
+type Killer = { name: string; image?: string };
+type DbdData = { perks?: Perk[]; killers?: Killer[] };
+
+const typedData = dbdData as unknown as DbdData;
+
 const PERK_DATA_BY_NAME = new Map(
-  (dbdData?.perks ?? []).map((p: any) => [String(p.name).toLowerCase(), p])
+  (typedData?.perks ?? []).map((p) => [String(p.name).toLowerCase(), p])
 );
 
 const KILLER_IMAGE_BY_NAME = new Map(
-  (dbdData?.killers ?? []).map((k: any) => [String(k.name).toLowerCase(), k.image])
+  (typedData?.killers ?? []).map((k) => [String(k.name).toLowerCase(), k.image])
 );
 
 // Configurable variables
@@ -79,7 +86,7 @@ const SELECTED_KILLER_BUILDS = [
 ];
 
 const ALL_KILLERS_BY_NAME = new Map(
-  (dbdData?.killers ?? []).map((k: any) => [String(k.name).toLowerCase(), k])
+  (typedData?.killers ?? []).map((k) => [String(k.name).toLowerCase(), k])
 );
 
 const KILLER_STATS = SELECTED_KILLER_BUILDS.filter((k) =>
@@ -145,10 +152,12 @@ export default function Home() {
           style={{ backgroundImage: `url('${PROFILE_BANNER}')` }}
         >
           {/* Profile Image Circle */}
-          <img
+          <Image
             src={PROFILE_PIC}
             alt="Profile"
-             className={styles.profileImage}
+            width={150}
+            height={150}
+            className={styles.profileImage}
           />
           <div className={styles.nameOverlay}>
             <span className={styles.profileName}>{PROFILE_NAME}</span>
@@ -197,13 +206,15 @@ export default function Home() {
                       : "2px solid transparent",
                   fontWeight: activeTab === idx ? "bold" : "normal",
                 }}
-                aria-selected={activeTab === idx}
+                data-selected={activeTab === idx}
                 tabIndex={0}
               >
-                <img
+                <Image
                   src={tab.icon}
                   alt={`Tab ${idx + 1} Icon`}
-                  style={{ width: 24, height: 24, objectFit: "contain", cursor: "pointer" }}
+                  width={24}
+                  height={24}
+                  style={{ objectFit: "contain", cursor: "pointer" }}
                 />
                 {tab.label}
               </button>
@@ -216,20 +227,28 @@ export default function Home() {
               {/* Render killer stats */}
               {TAB_CONFIG[activeTab]?.type === "killers" && (
                 <div className={styles.killersGrid}>
-                  {KILLER_STATS.map((killer, killerIdx) => (
+                  {KILLER_STATS.map((killer) => (
                     <div key={killer.name} className={`${styles.killerCard} ${styles.accentCard}`}>
                       <div className={styles.killerHeader}>
-                        <img src={KILLER_IMAGE_BY_NAME.get(killer.name.toLowerCase()) || ""} alt={killer.name} className={styles.killerPortrait} />
+                        {KILLER_IMAGE_BY_NAME.get(killer.name.toLowerCase()) ? (
+                          <Image
+                            src={KILLER_IMAGE_BY_NAME.get(killer.name.toLowerCase()) as string}
+                            alt={killer.name}
+                            width={80}
+                            height={80}
+                            className={styles.killerPortrait}
+                          />
+                        ) : null}
                         <div className={styles.killerInfo}>
                           <h3 className={styles.killerName}>{killer.name}</h3>
                         </div>
                       </div>
                       <div className={styles.buildsSection}>
-                        {killer.builds.map((build, buildIdx) => (
+                        {killer.builds.map((build) => (
                           <div key={build.name} className={`${styles.buildCard} ${styles.accentCard}`}>
                             <h4 className={styles.buildName}>{build.name}</h4>
                             <div className={styles.perksGrid}>
-                              {build.perks.map((perkName, perkIdx) => (
+                              {build.perks.map((perkName) => (
                                 (() => {
                                   const name = String(perkName);
                                   const perkData = PERK_DATA_BY_NAME.get(name.toLowerCase());
@@ -244,7 +263,11 @@ export default function Home() {
                                       }
                                       title={name}
                                     >
-                                      {iconSrc ? <img src={iconSrc} alt={name} /> : <span>{name}</span>}
+                                      {iconSrc ? (
+                                        <Image src={iconSrc} alt={name} width={60} height={60} />
+                                      ) : (
+                                        <span>{name}</span>
+                                      )}
                                     </div>
                                   );
                                 })()
@@ -289,7 +312,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className={styles.socialLink}
               >
-                <img src={social.icon} alt={social.label} className={styles.socialIcon} />
+                <Image src={social.icon} alt={social.label} width={22} height={22} className={styles.socialIcon} />
                 <span className={styles.socialLabel}>{social.label}</span>
               </a>
             ))}
@@ -326,7 +349,7 @@ export default function Home() {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div className={styles.modalTitleSection}>
-                <img src={selectedPerk.icon} alt={selectedPerk.name} className={styles.modalPerkIcon} />
+                <Image src={selectedPerk.icon} alt={selectedPerk.name} width={48} height={48} className={styles.modalPerkIcon} />
                 <h2>{selectedPerk.name}</h2>
               </div>
               <button 
