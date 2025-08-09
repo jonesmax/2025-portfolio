@@ -1,30 +1,101 @@
 "use client";
 import { useState } from "react";
 import styles from "./page.module.css";
+import dbdData from "./perks_killers_survivors.json";
 
-// Color variables
-const PINK_ACCENT = "#f655a2";
+const PERK_DATA_BY_NAME = new Map(
+  (dbdData?.perks ?? []).map((p: any) => [String(p.name).toLowerCase(), p])
+);
+
+const KILLER_IMAGE_BY_NAME = new Map(
+  (dbdData?.killers ?? []).map((k: any) => [String(k.name).toLowerCase(), k.image])
+);
 
 // Configurable variables
-const PROFILE_NAME = "Vicki Valiant";
-const TWITCH_CHANNEL = "vickivaliant";
-const PROFILE_BANNER =
-  "https://static-cdn.jtvnw.net/jtv_user_pictures/039e0cd0-aade-4f5e-9189-dc998f400673-profile_banner-480.png";
-const TAB_CONFIG = [
+const PROFILE_NAME = "Farrah Moan";
+const TWITCH_CHANNEL = "farrahrized";
+const PROFILE_PIC = "https://static-cdn.jtvnw.net/jtv_user_pictures/e2d25766-8d05-4a9e-a077-9091fd1d0604-profile_image-300x300.png"
+const PROFILE_BANNER = "https://static-cdn.jtvnw.net/jtv_user_pictures/4e24494c-846c-4caf-88b1-a62f28797f0a-profile_banner-480.png";
+
+// About section content
+const ABOUT_SECTION = `hiiii Divas! The highlight of S9, Farrah Moan, is now on Twitch! She/her. Reality Tv personality, Makeup artist, Entertainer extraordinaire! Some might call me a professional loop queen on Dead By Daylight (haha) Welcome to my Twitch Channel! Thank you for being here :) booking@FarrahMoan.com`;
+
+// Select 3 popular killers with 2 builds each (perk names only)
+const SELECTED_KILLER_BUILDS = [
   {
-    label: "About",
-    icon: "https://deadbydaylight.wiki.gg/images/1/10/IconPerks_corruptIntervention.png",
-    paragraph: `Welcome to Vicki Valiant's hub page! Vicki is a passionate streamer who loves sharing her adventures, laughs, and gaming moments with her community. Whether you're here for Dead by Daylight tips, fun conversations, or just to hang out, you're in the right place. Visit the channel, make some friends, and enjoy the show!`,
+    name: "Nurse",
+    builds: [
+      {
+        name: "Gen Regression",
+        perks: [
+          "Pop Goes the Weasel",
+          "Scourge Hook: Pain Resonance",
+          "Deadlock",
+          "Corrupt Intervention",
+        ],
+      },
+      {
+        name: "Info & Snowball",
+        perks: ["Lethal Pursuer", "Tinkerer", "No Way Out", "Bamboozle"],
+      },
+    ],
   },
   {
-    label: "DBD Info",
+    name: "Wraith",
+    builds: [
+      {
+        name: "Stealth & Chase",
+        perks: [
+          "Lethal Pursuer",
+          "Bamboozle",
+          "Save the Best for Last",
+          "No Way Out",
+        ],
+      },
+      {
+        name: "Regression",
+        perks: ["Pop Goes the Weasel", "Deadlock", "Surge", "Corrupt Intervention"],
+      },
+    ],
+  },
+  {
+    name: "Trapper",
+    builds: [
+      {
+        name: "Control & Carry",
+        perks: ["Agitation", "Brutal Strength", "Corrupt Intervention", "Deadlock"],
+      },
+      {
+        name: "Tracking",
+        perks: [
+          "Barbecue &amp; Chilli",
+          "Surge",
+          "Thanatophobia",
+          "Sloppy Butcher",
+        ],
+      },
+    ],
+  },
+];
+
+const ALL_KILLERS_BY_NAME = new Map(
+  (dbdData?.killers ?? []).map((k: any) => [String(k.name).toLowerCase(), k])
+);
+
+const KILLER_STATS = SELECTED_KILLER_BUILDS.filter((k) =>
+  ALL_KILLERS_BY_NAME.has(k.name.toLowerCase())
+);
+
+const TAB_CONFIG = [
+  {
+    label: "DBD Stats",
     icon: "https://deadbydaylight.wiki.gg/images/1/10/IconPerks_corruptIntervention.png",
-    items: ["Giraffe", "Hippo", "Iguana", "Jaguar", "Kangaroo", "Lion"],
+    type: "killers",
   },
   {
     label: "Other",
     icon: "https://deadbydaylight.wiki.gg/images/1/10/IconPerks_corruptIntervention.png",
-    items: ["sdfe", "Hippo", "Iguana", "Jaguar", "Kangaroo", "Lion"],
+    items: ["Stream Info", "Gaming Setup", "Schedule", "Community", "Highlights", "VODs"],
   },
 ];
 
@@ -64,152 +135,55 @@ const SOCIALS = [
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedPerk, setSelectedPerk] = useState<{name: string, description: string, icon: string} | null>(null);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        minWidth: "100vw",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
+    <div className={styles.pageRoot}>
+      <div className={styles.centerRow}>
         <div
-          style={{
-            width: "100%",
-            maxWidth: "1400px",
-            height: "250px",
-            backgroundImage: `url('${PROFILE_BANNER}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "left center",
-            position: "relative",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            borderBottom: `6px solid ${PINK_ACCENT}`,
-          }}
+          className={styles.bannerCommon}
+          style={{ backgroundImage: `url('${PROFILE_BANNER}')` }}
         >
           {/* Profile Image Circle */}
           <img
-            src="https://static-cdn.jtvnw.net/jtv_user_pictures/ade7eb68-f401-4261-9b09-8b7edae3a226-profile_image-300x300.png"
+            src={PROFILE_PIC}
             alt="Profile"
-            style={{
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-              bottom: "65px",
-              width: "150px",
-              height: "150px",
-              borderRadius: "50%",
-              border: "5px solid white",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
-              objectFit: "cover",
-              zIndex: 2,
-            }}
+             className={styles.profileImage}
           />
-          <div
-            style={{
-              width: "100%",
-              background: "rgba(0, 0, 0, 0.53)",
-              padding: "16px 0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "absolute",
-              bottom: 0,
-              left: 0,              height:'45px',
-              zIndex: 1,
-            }}
-          >
-            <span
-              style={{
-                color: "#fff",
-                fontSize: "2rem",
-                fontWeight: "bold",
-                letterSpacing: "2px",
-  
-                textShadow: "0 2px 8px rgba(0,0,0,0.5)",
-                marginLeft: "80px",
-                marginRight: "80px",
-                width: "100%",
-                textAlign: "center",
-              }}
-            >
-              {PROFILE_NAME}
-            </span>
+          <div className={styles.nameOverlay}>
+            <span className={styles.profileName}>{PROFILE_NAME}</span>
           </div>
         </div>
       </div>
-      <div
-        style={{
-          backgroundColor: "rgba(0, 0, 0, 0.63)",
-          paddingBottom: "48px",
-          maxWidth: "1400px",
-          marginLeft: "auto",
-          marginRight: "auto",
-          flex: "1 1 auto",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingTop: "36px",
-            paddingBottom: "26px",
-          }}
-        >
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              maxWidth: "700px",
-              aspectRatio: "16 / 9",
-              margin: "15px",
-              boxShadow: `0 0 0 4px ${PINK_ACCENT}, 0 0 24px 8px ${PINK_ACCENT}`, // pink glow stroke
-              borderRadius: "5px",
-              padding: "2px",
-              background: "#000", // optional: helps with padding edge
-              boxSizing: "border-box",
-              overflow: "hidden",
-            }}
-          >
+      <div className={styles.main}>
+        {/* Twitch Player, Chat, and About Me */}
+        <div className={styles.topRow}>
+          <div className={`${styles.playerContainer} ${styles.accentCard}`}>
             <iframe
-              src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=localhost`}
+              className={styles.playerFrame}
+              src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${typeof window !== "undefined" ? window.location.hostname : "localhost"}`}
               allowFullScreen={true}
               frameBorder={0}
               scrolling="no"
-              style={{
-                borderRadius: "2px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-                width: "100%",
-                height: "100%",
-                border: "none",
-                display: "block",
-              }}
             ></iframe>
+          </div>
+          {/* Chat Container */}
+          <div className={styles.chatCol}>
+            <div className={`${styles.chatCard} ${styles.accentCard}`}>
+              <iframe
+                className={styles.chatFrame}
+                src={`https://www.twitch.tv/embed/${TWITCH_CHANNEL}/chat?darkpopout&parent=${typeof window !== "undefined" ? window.location.hostname : "localhost"}`}
+                frameBorder={0}
+                scrolling="no"
+              ></iframe>
+            </div>
           </div>
         </div>
 
-        <div style={{ paddingTop: "5px", flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
+        {/* Tabs and tab content with chat */}
+        <div className={styles.tabsSection}>
           {/* Tabs */}
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              justifyContent: "center",
-              alignItems: "flex-start",
-            }}
-          >
+          <div className={styles.tabsNav}>
             {TAB_CONFIG.map((tab, idx) => (
               <button
                 key={tab.label}
@@ -217,19 +191,11 @@ export default function Home() {
                 className={styles.tabButton}
                 type="button"
                 style={{
-                  padding: "8px 16px",
-                  border: "none",
                   borderBottom:
                     activeTab === idx
                       ? "2px solid rgb(152, 152, 152)"
                       : "2px solid transparent",
-                  background: "none",
                   fontWeight: activeTab === idx ? "bold" : "normal",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  color: "white",
-                  cursor: "pointer",
                 }}
                 aria-selected={activeTab === idx}
                 tabIndex={0}
@@ -237,153 +203,99 @@ export default function Home() {
                 <img
                   src={tab.icon}
                   alt={`Tab ${idx + 1} Icon`}
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    objectFit: "contain",
-                    cursor: "pointer",
-                  }}
+                  style={{ width: 24, height: 24, objectFit: "contain", cursor: "pointer" }}
                 />
                 {tab.label}
               </button>
             ))}
           </div>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginTop: "24px",
-              maxWidth: "700px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              justifyContent: "flex-start",
-              flex: "1 1 auto",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "16px",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                width: "100%",
-              }}
-            >
-              {activeTab === 0 ? (
-                <div
-                  style={{
-                    width: "100%",
-                    background: "rgba(255, 255, 255, 0.71)",
-                    padding: "18px",
-                    borderRadius: "8px",
-                    boxSizing: "border-box",
-                    color: "#222",
-                    fontSize: "1.1rem",
-                    lineHeight: "1.7",
-                    textAlign: "left",
-                  }}
-                >
-                  {TAB_CONFIG[0].paragraph}
+          {/* Two column layout: Tab content on left, Chat on right */}
+          <div className={styles.twoCol}>
+            {/* Tab content column - 2/3 width */}
+            <div className={styles.tabCol}>
+              {/* Render killer stats */}
+              {TAB_CONFIG[activeTab]?.type === "killers" && (
+                <div className={styles.killersGrid}>
+                  {KILLER_STATS.map((killer, killerIdx) => (
+                    <div key={killer.name} className={`${styles.killerCard} ${styles.accentCard}`}>
+                      <div className={styles.killerHeader}>
+                        <img src={KILLER_IMAGE_BY_NAME.get(killer.name.toLowerCase()) || ""} alt={killer.name} className={styles.killerPortrait} />
+                        <div className={styles.killerInfo}>
+                          <h3 className={styles.killerName}>{killer.name}</h3>
+                        </div>
+                      </div>
+                      <div className={styles.buildsSection}>
+                        {killer.builds.map((build, buildIdx) => (
+                          <div key={build.name} className={`${styles.buildCard} ${styles.accentCard}`}>
+                            <h4 className={styles.buildName}>{build.name}</h4>
+                            <div className={styles.perksGrid}>
+                              {build.perks.map((perkName, perkIdx) => (
+                                (() => {
+                                  const name = String(perkName);
+                                  const perkData = PERK_DATA_BY_NAME.get(name.toLowerCase());
+                                  const iconSrc = perkData?.image ?? "";
+                                  const descText = perkData?.description ?? "";
+                                  return (
+                                    <div
+                                      key={name}
+                                      className={styles.perkIcon}
+                                      onClick={() =>
+                                        setSelectedPerk({ name, description: descText, icon: iconSrc })
+                                      }
+                                      title={name}
+                                    >
+                                      {iconSrc ? <img src={iconSrc} alt={name} /> : <span>{name}</span>}
+                                    </div>
+                                  );
+                                })()
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                TAB_CONFIG[activeTab]?.items?.map((item) => (
-                  <div
-                    key={item}
-                    style={{
-                      flex: "1 1 45%",
-                      minWidth: "300px",
-                      maxWidth: "400px",
-                      background: "#f0f0f0",
-                      padding: "16px",
-                      borderRadius: "8px",
-                      boxSizing: "border-box",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "flex-start",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))
               )}
+              
+              {/* Render regular items */}
+              {TAB_CONFIG[activeTab]?.items && (
+                <div className={styles.tabItems}>
+                  {TAB_CONFIG[activeTab].items.map((item) => (
+                    <div key={item} className={`${styles.tabItemCard} ${styles.accentCard}`}>
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* About Me column - 1/3 width */}
+            <div className={styles.aboutCol}>
+              <div className={`${styles.aboutCard} ${styles.accentCard}`}>
+                {ABOUT_SECTION}
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <footer
-        style={{
-          width: "100%",
-          textAlign: "center",
-          background: "#222",
-          color: "white",
-          flexShrink: 0,
-          borderTop: `6px solid ${PINK_ACCENT}`,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-            padding: "15px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "24px",
-              alignItems: "center",
-              flexWrap: "wrap",
-              width: "100%",
-            }}
-          >
+      <footer className={styles.footer}>
+        <div className={styles.footerInner}>
+          <div className={styles.socials}>
             {SOCIALS.map((social) => (
               <a
                 key={social.label}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  color: "white",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                  fontSize: "1rem",
-                  minWidth: "110px",
-                  marginBottom: "8px",
-                  flex: "0 1 auto",
-                  cursor: "pointer",
-                }}
+                className={styles.socialLink}
               >
-                <img
-                  src={social.icon}
-                  alt={social.label}
-                  style={{
-                    width: "22px",
-                    height: "22px",
-                    filter:
-                      "invert(56%) sepia(91%) saturate(7492%) hue-rotate(299deg) brightness(97%) contrast(101%)",
-                    display: "inline-block",
-                    verticalAlign: "middle",
-                    cursor: "pointer",
-                  }}
-                />
-                <span style={{ color: "white", cursor: "pointer" }}>
-                  {social.label}
-                </span>
+                <img src={social.icon} alt={social.label} className={styles.socialIcon} />
+                <span className={styles.socialLabel}>{social.label}</span>
               </a>
             ))}
           </div>
-          <div style={{ marginTop: "0", color: "white", lineHeight: "1.5" }}>
-            This page provider invites you to support and donate to {" "}
+          <div style={{ marginTop: 0, color: "var(--secendary)", lineHeight: 1.5 }}>
+            This page provider invites you to support and donate to{" "}
             <a
               href="https://www.thetrevorproject.org/"
               target="_blank"
@@ -394,7 +306,7 @@ export default function Home() {
             </a>
             .
           </div>
-          <div style={{ marginTop: "0", color: "white", lineHeight: "1.5" }}>
+          <div style={{ marginTop: 0, color: "var(--secendary)", lineHeight: 1.5 }}>
             Content and images parsed from{" "}
             <a
               href={`https://twitch.tv/${TWITCH_CHANNEL}`}
@@ -407,6 +319,30 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      
+      {/* Perk Modal */}
+      {selectedPerk && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedPerk(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div className={styles.modalTitleSection}>
+                <img src={selectedPerk.icon} alt={selectedPerk.name} className={styles.modalPerkIcon} />
+                <h2>{selectedPerk.name}</h2>
+              </div>
+              <button 
+                className={styles.modalClose}
+                onClick={() => setSelectedPerk(null)}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p>{selectedPerk.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
