@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import dbdData from "./perks_killers_survivors.json";
@@ -143,6 +143,11 @@ const SOCIALS = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedPerk, setSelectedPerk] = useState<{name: string, description: string, icon: string} | null>(null);
+  const [parentHost, setParentHost] = useState<string | null>(null);
+
+  useEffect(() => {
+    setParentHost(window.location.hostname);
+  }, []);
 
   return (
     <div className={styles.pageRoot}>
@@ -168,23 +173,27 @@ export default function Home() {
         {/* Twitch Player, Chat, and About Me */}
         <div className={styles.topRow}>
           <div className={`${styles.playerContainer} ${styles.accentCard}`}>
-            <iframe
-              className={styles.playerFrame}
-              src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${typeof window !== "undefined" ? window.location.hostname : "localhost"}`}
-              allowFullScreen={true}
-              frameBorder={0}
-              scrolling="no"
-            ></iframe>
+            {parentHost && (
+              <iframe
+                className={styles.playerFrame}
+                src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parentHost}`}
+                allowFullScreen={true}
+                frameBorder={0}
+                scrolling="no"
+              ></iframe>
+            )}
           </div>
           {/* Chat Container */}
           <div className={styles.chatCol}>
             <div className={`${styles.chatCard} ${styles.accentCard}`}>
-              <iframe
-                className={styles.chatFrame}
-                src={`https://www.twitch.tv/embed/${TWITCH_CHANNEL}/chat?darkpopout&parent=${typeof window !== "undefined" ? window.location.hostname : "localhost"}`}
-                frameBorder={0}
-                scrolling="no"
-              ></iframe>
+              {parentHost && (
+                <iframe
+                  className={styles.chatFrame}
+                  src={`https://www.twitch.tv/embed/${TWITCH_CHANNEL}/chat?darkpopout&parent=${parentHost}`}
+                  frameBorder={0}
+                  scrolling="no"
+                ></iframe>
+              )}
             </div>
           </div>
         </div>
